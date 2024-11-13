@@ -14,8 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.freelsfragment.ListLowongan;
-import com.example.freelsfragment.R;
+import com.example.freelsapps.ListLowongan;
+import com.example.freelsapps.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

@@ -1,11 +1,14 @@
-package com.example.freelsapps.Activity;
+package com.example.freelsapps.Fragment;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,23 +25,28 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TrackLowonganActivity extends AppCompatActivity {
+public class TrackLowonganFragment extends Fragment {
 
     private CardView cvPelamar;
     private RecyclerView rvListLamaran;
     private ListLowonganAdapter listLamaranAdapter;
     private ApiInterface apiInterface;
 
+    public TrackLowonganFragment() {
+        // Required empty public constructor
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_track_lowongan);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-        this.cvPelamar = findViewById(R.id.cvPelamar);
-        this.rvListLamaran = findViewById(R.id.rvListLamaran);
+        View view = inflater.inflate(R.layout.fragment_track_lowongan, container, false);
 
-        rvListLamaran.setLayoutManager(new LinearLayoutManager(this));
-        listLamaranAdapter = new ListLowonganAdapter(this);
+        this.cvPelamar = view.findViewById(R.id.cvPelamar);
+        this.rvListLamaran = view.findViewById(R.id.rvListLamaran);
+
+        rvListLamaran.setLayoutManager(new LinearLayoutManager(getContext()));
+        listLamaranAdapter = new ListLowonganAdapter(getContext());
         rvListLamaran.setAdapter(listLamaranAdapter);
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
@@ -50,17 +58,19 @@ public class TrackLowonganActivity extends AppCompatActivity {
                         listLamaranAdapter.setLowongans(lowonganData);
                     } else {
                         Log.d("API Response", "Data pelamar kosong: " + response.body().toString());
-                        Toast.makeText(TrackLowonganActivity.this, "Data pelamar kosong" + response.message(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Data pelamar kosong" + response.message(), Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Toast.makeText(TrackLowonganActivity.this, "Gagal mengambil data " + response.message(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Gagal mengambil data " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<GetLowongan> call, Throwable t) {
-                Toast.makeText(TrackLowonganActivity.this, "Gagal memuat data: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Gagal memuat data: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        return view;
     }
 }

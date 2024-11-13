@@ -1,12 +1,15 @@
-package com.example.freelsapps.Activity;
+package com.example.freelsapps.Fragment;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,7 +28,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class HomePageActivity extends AppCompatActivity {
+public class HomePageFragment extends Fragment {
 
     private Spinner spFilterLowonganJenisPekerjaan;
     private Spinner spFilterLowonganGaji;
@@ -34,23 +37,28 @@ public class HomePageActivity extends AppCompatActivity {
     private ListLowonganAdapter listLowonganAdapter;
     private ApiInterface apiInterface;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home_page);
+    public HomePageFragment() {
+        // Required empty public constructor
+    }
 
-        this.spFilterLowonganJenisPekerjaan = findViewById(R.id.spFilterLowonganJenisPekerjaan);
-        this.spFilterLowonganGaji = findViewById(R.id.spFilterLowonganGaji);
-        this.svSearchLowongan = findViewById(R.id.svSearchLowongan);
-        this.rvListLowongan = findViewById(R.id.rvListLowongan);
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_home_page, container, false);
+
+        this.spFilterLowonganJenisPekerjaan = view.findViewById(R.id.spFilterLowonganJenisPekerjaan);
+        this.spFilterLowonganGaji = view.findViewById(R.id.spFilterLowonganGaji);
+        this.svSearchLowongan = view.findViewById(R.id.svSearchLowongan);
+        this.rvListLowongan = view.findViewById(R.id.rvListLowongan);
 
         svSearchLowongan.setIconified(false);
 
-        new JenisPekerjaanSpinnerAdapter(this, spFilterLowonganJenisPekerjaan);
-        new GajiSpinnerAdapter(this, spFilterLowonganGaji);
+        new JenisPekerjaanSpinnerAdapter(getContext(), spFilterLowonganJenisPekerjaan);
+        new GajiSpinnerAdapter(getContext(), spFilterLowonganGaji);
 
-        rvListLowongan.setLayoutManager(new LinearLayoutManager(this));
-        listLowonganAdapter = new ListLowonganAdapter(this);
+        rvListLowongan.setLayoutManager(new LinearLayoutManager(getContext()));
+        listLowonganAdapter = new ListLowonganAdapter(getContext());
         rvListLowongan.setAdapter(listLowonganAdapter);
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
@@ -62,17 +70,19 @@ public class HomePageActivity extends AppCompatActivity {
                         listLowonganAdapter.setLowongans(lowonganData);
                     } else {
                         Log.d("API Response", "Data pelamar kosong: " + response.body().toString());
-                        Toast.makeText(HomePageActivity.this, "Data pelamar kosong" + response.message(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Data pelamar kosong" + response.message(), Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Toast.makeText(HomePageActivity.this, "Gagal mengambil data " + response.message(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Gagal mengambil data " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<GetLowongan> call, Throwable t) {
-                Toast.makeText(HomePageActivity.this, "Gagal memuat data: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Gagal memuat data: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        return view;
     }
 }

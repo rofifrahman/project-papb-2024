@@ -1,6 +1,6 @@
 package com.example.freelsapps.Model;
 
-import com.example.freelsfragment.ListLowongan;
+import com.example.freelsapps.ListLowongan;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;

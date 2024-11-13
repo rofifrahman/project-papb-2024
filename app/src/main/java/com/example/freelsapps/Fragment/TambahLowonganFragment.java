@@ -1,4 +1,4 @@
-package com.example.freelsapps.Activity;
+package com.example.freelsapps.Fragment;
 
 import android.Manifest;
 import android.content.Intent;
@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -16,9 +18,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
 
 import com.example.freelsapps.Adapter.Spinner.JenisPekerjaanSpinnerAdapter;
 import com.example.freelsapps.Adapter.Spinner.LokasiSpinnerAdapter;
@@ -40,7 +42,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TambahLowonganActivity extends AppCompatActivity {
+public class TambahLowonganFragment extends Fragment {
 
     private EditText etNamaPerusahaan;
     private EditText etPekerjaan;
@@ -59,29 +61,33 @@ public class TambahLowonganActivity extends AppCompatActivity {
     private File logoFile = null;
     private String currentPhotoPath;
 
+    public TambahLowonganFragment() {
+        // Required empty public constructor
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tambah_lowongan);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_tambah_lowongan, container, false);
 
-        this.etNamaPerusahaan = findViewById(R.id.etNamaPerusahaan);
-        this.etPekerjaan = findViewById(R.id.etPekerjaan);
-        this.spLokasi = findViewById(R.id.spLokasi);
-        this.spJenisPekerjaan = findViewById(R.id.spJenisPekerjaan);
-        this.etGajiMinimum = findViewById(R.id.etGajiMinimum);
-        this.etGajiMaksimum = findViewById(R.id.etGajiMaksimum);
-        this.etRingkasanPekerjaan = findViewById(R.id.etRingkasanPekerjaan);
-        this.etKualifikasiPekerjaan = findViewById(R.id.etKualifikasiPekerjaan);
-        this.btUnggahLogoPerusahaan = findViewById(R.id.btUnggahLogoPerusahaan);
-        this.btUnggahLowongan = findViewById(R.id.btUnggahLowongan);
+        this.etNamaPerusahaan = view.findViewById(R.id.etNamaPerusahaan);
+        this.etPekerjaan = view.findViewById(R.id.etPekerjaan);
+        this.spLokasi = view.findViewById(R.id.spLokasi);
+        this.spJenisPekerjaan = view.findViewById(R.id.spJenisPekerjaan);
+        this.etGajiMinimum = view.findViewById(R.id.etGajiMinimum);
+        this.etGajiMaksimum = view.findViewById(R.id.etGajiMaksimum);
+        this.etRingkasanPekerjaan = view.findViewById(R.id.etRingkasanPekerjaan);
+        this.etKualifikasiPekerjaan = view.findViewById(R.id.etKualifikasiPekerjaan);
+        this.btUnggahLogoPerusahaan = view.findViewById(R.id.btUnggahLogoPerusahaan);
+        this.btUnggahLowongan = view.findViewById(R.id.btUnggahLowongan);
 
-        new LokasiSpinnerAdapter(this, spLokasi);
-        new JenisPekerjaanSpinnerAdapter(this, spJenisPekerjaan);
+        new LokasiSpinnerAdapter(getContext(), spLokasi);
+        new JenisPekerjaanSpinnerAdapter(getContext(), spJenisPekerjaan);
 
         this.btUnggahLogoPerusahaan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ContextCompat.checkSelfPermission(TambahLowonganActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     pilihGambar();
                 } else {
                     String [] Permisions = { Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -106,7 +112,7 @@ public class TambahLowonganActivity extends AppCompatActivity {
 
                 MultipartBody.Part logoPerusahaan = null;
                 if (logoFile != null) {
-                    Toast.makeText(TambahLowonganActivity.this, "Logo perusahaan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Logo perusahaan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
                     RequestBody requestBodyLogo = RequestBody.create(MediaType.parse("image/*"), logoFile);
                     logoPerusahaan = MultipartBody.Part.createFormData("logoPerusahaan", logoFile.getName(), requestBodyLogo);
                 }
@@ -127,34 +133,35 @@ public class TambahLowonganActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<CUDlowongan> call, Response<CUDlowongan> response) {
                         if (response.isSuccessful()) {
-                            Toast.makeText(TambahLowonganActivity.this, "Lowongan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Lowongan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(TambahLowonganActivity.this, "Gagal menambahkan lowongan: " + response.message(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Gagal menambahkan lowongan: " + response.message(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<CUDlowongan> call, Throwable t) {
-                        Toast.makeText(TambahLowonganActivity.this, "Gagal menambahkan: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Gagal menambahkan: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         });
+        return view;
     }
 
     private void pilihGambar() {
         final CharSequence[] options = {"Ambil Gambar", "Pilih dari Gallery", "Cancel"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Pilih Logo Perusahaan");
 
         builder.setItems(options, (dialog, item) -> {
             if (options[item].equals("Ambil Gambar")) {
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                     File photoFile = null;
                     try {
                         String imageFileName = "JPEG_" + System.currentTimeMillis() + "_";
-                        File storageDir = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                        File storageDir = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
                         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
                         currentPhotoPath = image.getAbsolutePath();
                         photoFile = image;
@@ -162,7 +169,7 @@ public class TambahLowonganActivity extends AppCompatActivity {
                         Log.e("ImageFile", "Error creating image file", ex);
                     }
                     if (photoFile != null) {
-                        Uri photoURI = FileProvider.getUriForFile(this, "com.example.freels11", photoFile);
+                        Uri photoURI = FileProvider.getUriForFile(getContext(), "com.example.freels11", photoFile);
                         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                         startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                     }
@@ -182,14 +189,14 @@ public class TambahLowonganActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
+        if (resultCode == getActivity().RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
                 logoFile = new File(currentPhotoPath);
             } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
                 Uri selectedImageUri = data.getData();
                 try {
-                    InputStream inputStream = this.getContentResolver().openInputStream(selectedImageUri);
-                    logoFile = new File(this.getExternalFilesDir(null), "picked_image.jpg"); // Contoh penyimpanan ke file baru
+                    InputStream inputStream = getContext().getContentResolver().openInputStream(selectedImageUri);
+                    logoFile = new File(getContext().getExternalFilesDir(null), "picked_image.jpg"); // Contoh penyimpanan ke file baru
                     OutputStream outputStream = new FileOutputStream(logoFile);
                     byte[] buffer = new byte[1024];
                     int length;
@@ -213,7 +220,7 @@ public class TambahLowonganActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 pilihGambar();
             } else {
-                Toast.makeText(this, "Storage permission denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Storage permission denied", Toast.LENGTH_SHORT).show();
             }
         }
     }

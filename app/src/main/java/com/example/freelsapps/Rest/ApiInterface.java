@@ -1,7 +1,7 @@
 package com.example.freelsapps.Rest;
 
-import com.example.freelsfragment.Model.CUDlowongan;
-import com.example.freelsfragment.Model.GetLowongan;
+import com.example.freelsapps.Model.CUDlowongan;
+import com.example.freelsapps.Model.GetLowongan;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
