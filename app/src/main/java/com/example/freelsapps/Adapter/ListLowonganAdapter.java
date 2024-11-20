@@ -1,6 +1,9 @@
 package com.example.freelsapps.Adapter;
 
 import android.content.Context;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.freelsapps.ListLowongan;
 import com.example.freelsapps.R;
+import com.example.freelsapps.Rest.ApiClient;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -45,8 +50,7 @@ public class ListLowonganAdapter extends RecyclerView.Adapter implements Filtera
         private final TextView tvNamaPerusahaan;
         private final TextView tvLokasi;
         private final TextView tvRingkasanPekerjaan;
-        private CardView cvLowongan;
-        private ListLowongan listLowongan;
+        private ListLowongan lowongan;
 
         public ListLowonganVH(@NonNull View itemView) {
             super(itemView);
@@ -55,25 +59,38 @@ public class ListLowonganAdapter extends RecyclerView.Adapter implements Filtera
             tvNamaPerusahaan = itemView.findViewById(R.id.tvListNamaPerusahaan);
             tvLokasi = itemView.findViewById(R.id.tvListLokasi);
             tvRingkasanPekerjaan = itemView.findViewById(R.id.tvListRingkasanPekerjaan);
-            cvLowongan = itemView.findViewById(R.id.cvListLowongan);
-            cvLowongan.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    for (ListLowongan lw : dataListLowongan) {
-                        lw.lowonganTepilih = false;
-                    }
-
-                    listLowongan.lowonganTepilih = !listLowongan.lowonganTepilih;
-                    listlowonganPilih = listLowongan.lowonganTepilih ? listLowongan : null;
-                    notifyDataSetChanged();
+                    Toast.makeText(context, lowongan.getPekerjaan(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
 
-        private void setLowongan(ListLowongan lw) {
-            this.listLowongan = lw;
-            if (this.listLowongan.lowonganTepilih) {
-                Toast.makeText(context, listLowongan.getPekerjaan() + " telah dipilih 11", Toast.LENGTH_SHORT).show();
+        private void bind(ListLowongan listLowongan) {
+            tvPekerjaan.setText(listLowongan.getPekerjaan());
+            tvNamaPerusahaan.setText(listLowongan.getNamaPerusahaan());
+            tvLokasi.setText(listLowongan.getLokasi());
+            String ringkasan = listLowongan.getRingkasanPekerjaan();
+            if (ringkasan.length() > 155) {
+                String truncatedText = ringkasan.substring(0, 155);
+                String ellipsis = ". . .lihat selengkapnya";
+
+                SpannableString spannableRingkasan = new SpannableString(truncatedText + ellipsis);
+                spannableRingkasan.setSpan(
+                        new ForegroundColorSpan(context.getResources().getColor(R.color.blue)),
+                        truncatedText.length(),
+                        truncatedText.length() + ellipsis.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
+                tvRingkasanPekerjaan.setText(spannableRingkasan);
+            } else {
+                tvRingkasanPekerjaan.setText(ringkasan);
+            }
+            if (listLowongan.getLogoPerusahaan() != null && !listLowongan.getLogoPerusahaan().isEmpty()) {
+                Glide.with(context)
+                        .load(ApiClient.BASE_URL+"/logoPerusahaan/"+listLowongan.getLogoPerusahaan())
+                        .into(ivLogoPerusahaan);
             }
         }
     }
@@ -87,26 +104,8 @@ public class ListLowonganAdapter extends RecyclerView.Adapter implements Filtera
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ListLowongan listLowongan = dataListLowonganFilter.get(position);
-        ListLowonganVH listLowonganVH = (ListLowonganVH) holder;
-
-        listLowonganVH.tvPekerjaan.setText(listLowongan.getPekerjaan());
-        listLowonganVH.tvNamaPerusahaan.setText(listLowongan.getNamaPerusahaan());
-        listLowonganVH.tvLokasi.setText(listLowongan.getLokasi());
-        listLowonganVH.tvRingkasanPekerjaan.setText(listLowongan.getRingkasanPekerjaan());
-        if (listLowongan.getLogoPerusahaan() != null && !listLowongan.getLogoPerusahaan().isEmpty()) {
-//            Glide.with(context)
-//                    .load(ApiClient.BASE_URL+listLowongan.getLogoPerusahaan())
-//                    .into(listLowonganVH.ivLogoPerusahaan);
-////            Glide.with(listLowonganVH.ivLogoPerusahaan.getContext())
-////                    .load(response.body().byteStream())
-////                    .into(listLowonganVH.ivLogoPerusahaan);
-            Picasso.get().load(listLowongan.getLogoPerusahaan())
-                    .placeholder(R.drawable.logo_perusahaan_ruangguru)
-                    .error(R.drawable.logo_perusahaan_ruangguru)
-                    .into(((ListLowonganVH) holder).ivLogoPerusahaan);
-        }
-        listLowonganVH.setLowongan(listLowongan);
+        ListLowonganVH vh = (ListLowonganVH) holder;
+        vh.bind(dataListLowonganFilter.get(position));
     }
 
     @Override

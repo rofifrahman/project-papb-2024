@@ -17,14 +17,14 @@ import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 public interface ApiInterface {
-    @GET("perusahaan")
+    @GET("index.php/perusahaan")
     Call<GetLowongan> getLowongan();
 
-    @GET("perusahaan")
+    @GET("index.php/perusahaan")
     Call<GetLowongan> getLowongan(@Query("id") int id);
 
     @Multipart
-    @POST("perusahaan")
+    @POST("index.php/perusahaan")
     Call<CUDlowongan> postLowongan(
             @Part("namaPerusahaan") RequestBody namaPerusahaan,
             @Part("pekerjaan") RequestBody pekerjaan,
@@ -39,7 +39,7 @@ public interface ApiInterface {
     );
 
     @FormUrlEncoded
-    @PUT("perusahaan")
+    @PUT("index.php/perusahaan")
     Call<CUDlowongan> putLowongan(
             @Field("id") int id,
             @Field("namaPerusahaan") String nama_perusahaan,
@@ -53,7 +53,7 @@ public interface ApiInterface {
     );
 
     @FormUrlEncoded
-    @DELETE("perusahaan")
+    @DELETE("index.php/perusahaan")
     Call<CUDlowongan> deleteLowongan(@Field("id") int id);
 
 }
