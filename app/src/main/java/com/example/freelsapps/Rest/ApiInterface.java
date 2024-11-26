@@ -34,7 +34,6 @@ public interface ApiInterface {
             @Part("gajiMaksimum") RequestBody gajiMaksimum,
             @Part("ringkasanPekerjaan") RequestBody ringkasanPekerjaan,
             @Part("kualifikasiPekerjaan") RequestBody kualifikasiPekerjaan,
-//            @Part ("logoPerusahaan") RequestBody logo_perusahaan
             @Part MultipartBody.Part logoPerusahaan
     );
 

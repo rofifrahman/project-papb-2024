@@ -28,12 +28,16 @@ import androidx.room.Room;
 
 import com.example.freelsapps.Adapter.Spinner.JenisPekerjaanSpinnerAdapter;
 import com.example.freelsapps.Adapter.Spinner.LokasiSpinnerAdapter;
+import com.example.freelsapps.Firebase.LowonganFirebase;
 import com.example.freelsapps.R;
 import com.example.freelsapps.Rest.ApiInterface;
-import com.example.freelsapps.SqliteRoom.LowonganDAO;
+import com.example.freelsapps.SqliteRoom.LogoPerusahaanDAO;
 import com.example.freelsapps.SqliteRoom.LowonganDatabase;
+import com.example.freelsapps.SqliteRoom.LowonganLogoPerusahaan;
 import com.example.freelsapps.SqliteRoom.LowonganRoom;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,6 +51,7 @@ import java.util.Locale;
 
 public class TambahLowonganFragment extends Fragment {
 
+    public static final String FirebaseURL = "https://pamd-3b7db-default-rtdb.asia-southeast1.firebasedatabase.app/";
     private EditText etNamaPerusahaan;
     private EditText etPekerjaan;
     private Spinner spLokasi;
@@ -65,7 +70,9 @@ public class TambahLowonganFragment extends Fragment {
     private File logoFile = null;
     private String currentPhotoPath;
     private LowonganDatabase db;
-    private LowonganDAO lowonganDao;
+    private LogoPerusahaanDAO logoPerusahaanDAO;
+    private FirebaseDatabase firebaseDB;
+    private DatabaseReference appDB;
 
     public TambahLowonganFragment() {
         // Required empty public constructor
@@ -93,9 +100,12 @@ public class TambahLowonganFragment extends Fragment {
         this.db = Room.databaseBuilder(
                 getContext().getApplicationContext(),
                 LowonganDatabase.class,
-                "lowongan-db"
+                "logo-db"
         ).build();
-        this.lowonganDao = this.db.lowonganDAO();
+        this.logoPerusahaanDAO = this.db.logoPerusahaanDAO();
+
+        this.firebaseDB = FirebaseDatabase.getInstance(FirebaseURL);
+        this.appDB = this.firebaseDB.getReference("lowongan");
 
         this.btUnggahLogoPerusahaan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,20 +173,24 @@ public class TambahLowonganFragment extends Fragment {
         this.btUnggahLowongan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LowonganRoom lowonganRoom = new LowonganRoom();
-                lowonganRoom.namaPerusahaan = etNamaPerusahaan.getText().toString();
-                lowonganRoom.pekerjaan = etPekerjaan.getText().toString();
-                lowonganRoom.lokasi = spLokasi.getSelectedItem().toString();
-                lowonganRoom.jenisPekerjaan = spJenisPekerjaan.getSelectedItem().toString();
-                lowonganRoom.gajiMinimum = Integer.parseInt(etGajiMinimum.getText().toString());
-                lowonganRoom.gajiMaksimum = Integer.parseInt(etGajiMaksimum.getText().toString());
-                lowonganRoom.ringkasanPekerjaan = etRingkasanPekerjaan.getText().toString();
-                lowonganRoom.kualifikasiPekerjaan = etKualifikasiPekerjaan.getText().toString();
+                LowonganFirebase lowongan = new LowonganFirebase();
+                LowonganLogoPerusahaan lowonganRoom = new LowonganLogoPerusahaan();
+                String id = appDB.push().getKey();
+                lowongan.setId(id);
+                lowongan.setNamaPerusahaan(etNamaPerusahaan.getText().toString());
+                lowongan.setPekerjaan(etPekerjaan.getText().toString());
+                lowongan.setLokasi(spLokasi.getSelectedItem().toString());
+                lowongan.setJenisPekerjaan(spJenisPekerjaan.getSelectedItem().toString());
+                lowongan.setGajiMinimum(Integer.parseInt(etGajiMinimum.getText().toString()));
+                lowongan.setGajiMaksimum(Integer.parseInt(etGajiMaksimum.getText().toString()));
+                lowongan.setRingkasanPekerjaan(etRingkasanPekerjaan.getText().toString());
+                lowongan.setKualifikasiPekerjaan(etKualifikasiPekerjaan.getText().toString());
                 lowonganRoom.logoPerusahaan = logoByteArray;
 
                 new Thread(() -> {
-                    lowonganDao.insertALL(lowonganRoom);
+                    logoPerusahaanDAO.insertLogoPerusahaan(lowonganRoom);
                     new Handler(Looper.getMainLooper()).post(() -> {
+                        appDB.child(id).setValue(lowongan);
                         Toast.makeText(getContext(), "Lowongan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
                         HomePageFragment homePage = new HomePageFragment();
                         FragmentTransaction transaction = getFragmentManager().beginTransaction();

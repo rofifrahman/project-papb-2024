@@ -1,5 +1,7 @@
 package com.example.freelsapps.Fragment;
 
+import static com.example.freelsapps.Fragment.TambahLowonganFragment.FirebaseURL;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +11,7 @@ import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,12 +19,20 @@ import androidx.room.Room;
 
 import com.example.freelsapps.Adapter.Spinner.GajiSpinnerAdapter;
 import com.example.freelsapps.Adapter.Spinner.JenisPekerjaanSpinnerAdapter;
+import com.example.freelsapps.Firebase.LowonganFirebase;
+import com.example.freelsapps.Firebase.LowonganFirebaseAdapter;
 import com.example.freelsapps.R;
 import com.example.freelsapps.Rest.ApiInterface;
-import com.example.freelsapps.SqliteRoom.LowonganDAO;
+import com.example.freelsapps.SqliteRoom.LogoPerusahaanDAO;
 import com.example.freelsapps.SqliteRoom.LowonganDatabase;
+import com.example.freelsapps.SqliteRoom.LowonganLogoPerusahaan;
 import com.example.freelsapps.SqliteRoom.LowonganRoom;
 import com.example.freelsapps.SqliteRoom.LowonganRoomAdapter;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +45,14 @@ public class HomePageFragment extends Fragment {
     private Spinner spFilterLowonganGaji;
     private SearchView svSearchLowongan;
     private RecyclerView rvListLowongan;
-    private LowonganRoomAdapter listLowonganAdapter;
+    private LowonganFirebaseAdapter listLowonganAdapter;
     private ApiInterface apiInterface;
     private LowonganDatabase db;
-    private LowonganDAO lowonganDao;
-    private List<LowonganRoom> dataset = new ArrayList<>();
+    private LogoPerusahaanDAO logoPerusahaanDAO;
+    private List<LowonganFirebase> dataset = new ArrayList<>();
+    private List<LowonganLogoPerusahaan> datasetLogo = new ArrayList<>();
+    private FirebaseDatabase firebaseDB;
+    private DatabaseReference appDB;
 
     public HomePageFragment() {
         // Required empty public constructor
@@ -61,30 +75,51 @@ public class HomePageFragment extends Fragment {
         new GajiSpinnerAdapter(getContext(), spFilterLowonganGaji);
 
         rvListLowongan.setLayoutManager(new LinearLayoutManager(getContext()));
-        listLowonganAdapter = new LowonganRoomAdapter(getContext());
+        listLowonganAdapter = new LowonganFirebaseAdapter(getContext(), dataset, datasetLogo);
         rvListLowongan.setAdapter(listLowonganAdapter);
 
 
         this.db = Room.databaseBuilder(
                 getContext().getApplicationContext(),
                 LowonganDatabase.class,
-                "lowongan-db"
+                "logo-db"
         ).build();
-        this.lowonganDao = this.db.lowonganDAO();
+        this.logoPerusahaanDAO = this.db.logoPerusahaanDAO();
+
+        this.firebaseDB = FirebaseDatabase.getInstance(FirebaseURL);
+        this.appDB = this.firebaseDB.getReference("lowongan");
+        this.listLowonganAdapter.setAppDb(this.appDB);
+
+        this.appDB.addValueEventListener(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        dataset.clear();
+                        for (DataSnapshot s : snapshot.getChildren()){
+                            LowonganFirebase lowongan = s.getValue(LowonganFirebase.class);
+                            dataset.add(lowongan);
+                        }
+                        listLowonganAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                }
+        );
 
         ExecutorService executorService = Executors.newSingleThreadExecutor();
 
         executorService.execute(() -> {
             try {
-                List<LowonganRoom> lowongans = lowonganDao.getAllLowongan();
-                dataset.clear();
-                dataset.addAll(lowongans);
+                List<LowonganLogoPerusahaan> lowongans = logoPerusahaanDAO.getAllLogoPerusahaan();
+                datasetLogo.clear();
+                datasetLogo.addAll(lowongans);
 
-                // Update UI di main thread
                 requireActivity().runOnUiThread(() -> {
-                    listLowonganAdapter.setLowongans(dataset);
                     listLowonganAdapter.notifyDataSetChanged();
-                    if (dataset.isEmpty()) {
+                    if (datasetLogo.isEmpty()) {
                         Toast.makeText(getContext(), "Tidak ada data lowongan", Toast.LENGTH_SHORT).show();
                     }
                 });
