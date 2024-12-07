@@ -9,9 +9,9 @@ import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.example.freelsapps.Adapter.ListLowonganAdapter;
 import com.example.freelsapps.ListLowongan;
@@ -22,12 +22,9 @@ import com.example.freelsapps.Rest.ApiInterface;
 import com.example.freelsapps.SqliteRoom.LowonganDAO;
 import com.example.freelsapps.SqliteRoom.LowonganDatabase;
 import com.example.freelsapps.SqliteRoom.LowonganRoom;
-import com.example.freelsapps.SqliteRoom.LowonganRoomAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -110,6 +107,16 @@ public class TrackLowonganFragment extends Fragment {
             @Override
             public void onFailure(Call<GetLowongan> call, Throwable t) {
                 Toast.makeText(getContext(), "Gagal memuat data: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cvPelamar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TrackPelamarFragment trackPelamar = new TrackPelamarFragment();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.frameLayout, trackPelamar);
+                transaction.commit();
             }
         });
 
