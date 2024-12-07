@@ -1,6 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout4"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragment.ProfileFragment"/>
+    android:layout_margin="20dp"
+    tools:context=".Fragment.ProfileFragment">
+
+    <ImageView
+        android:id="@+id/ivPhotoProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/image_profile"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvNamaProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Nama"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivPhotoProfile" />
+
+    <EditText
+        android:id="@+id/etNamaProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Masukan Nama Lengkap Anda"
+        android:inputType="text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvNamaProfile" />
+
+    <TextView
+        android:id="@+id/tvRingkasanProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Ringkasan Profile"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etNamaProfile" />
+
+    <EditText
+        android:id="@+id/etRingkasanProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Masukan RIngkasan Profile Anda"
+        android:inputType="text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvRingkasanProfile" />
+
+    <TextView
+        android:id="@+id/tvPengalamanProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Pengalaman"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etRingkasanProfile" />
+
+    <EditText
+        android:id="@+id/etPengalamanProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Masukan Pengalaman Anda"
+        android:inputType="text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvPengalamanProfile" />
+
+    <TextView
+        android:id="@+id/tvPendidikan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Pendidikan"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etPengalamanProfile" />
+
+    <Spinner
+        android:id="@+id/spPendidikanProfile"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginStart="1dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvPendidikan" />
+
+    <TextView
+        android:id="@+id/tvCVProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="CV"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spPendidikanProfile" />
+
+    <Button
+        android:id="@+id/btCVProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Unggah CV"
+        app:icon="@android:drawable/ic_menu_upload"
+        app:iconGravity="end"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvCVProfile" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
