@@ -59,12 +59,6 @@ public class ListLowonganAdapter extends RecyclerView.Adapter implements Filtera
             tvNamaPerusahaan = itemView.findViewById(R.id.tvListNamaPerusahaan);
             tvLokasi = itemView.findViewById(R.id.tvListLokasi);
             tvRingkasanPekerjaan = itemView.findViewById(R.id.tvListRingkasanPekerjaan);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(context, lowongan.getPekerjaan(), Toast.LENGTH_SHORT).show();
-                }
-            });
         }
 
         private void bind(ListLowongan listLowongan) {

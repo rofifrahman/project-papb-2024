@@ -29,12 +29,13 @@ import androidx.room.Room;
 import com.example.freelsapps.Adapter.Spinner.JenisPekerjaanSpinnerAdapter;
 import com.example.freelsapps.Adapter.Spinner.LokasiSpinnerAdapter;
 import com.example.freelsapps.Firebase.LowonganFirebase;
+import com.example.freelsapps.Model.CUDlowongan;
 import com.example.freelsapps.R;
+import com.example.freelsapps.Rest.ApiClient;
 import com.example.freelsapps.Rest.ApiInterface;
 import com.example.freelsapps.SqliteRoom.LogoPerusahaanDAO;
 import com.example.freelsapps.SqliteRoom.LowonganDatabase;
 import com.example.freelsapps.SqliteRoom.LowonganLogoPerusahaan;
-import com.example.freelsapps.SqliteRoom.LowonganRoom;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -48,6 +49,13 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class TambahLowonganFragment extends Fragment {
 
@@ -119,88 +127,11 @@ public class TambahLowonganFragment extends Fragment {
             }
         });
 
-//        this.btUnggahLowongan.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                apiInterface = ApiClient.getClient().create(ApiInterface.class);
-//
-//                RequestBody namaPerusahaan = RequestBody.create(MediaType.parse("text/plain"), etNamaPerusahaan.getText().toString());
-//                RequestBody pekerjaan = RequestBody.create(MediaType.parse("text/plain"), etPekerjaan.getText().toString());
-//                RequestBody lokasi = RequestBody.create(MediaType.parse("text/plain"), spLokasi.getSelectedItem().toString());
-//                RequestBody jenisPekerjaan = RequestBody.create(MediaType.parse("text/plain"), spJenisPekerjaan.getSelectedItem().toString());
-//                RequestBody gajiMinimum = RequestBody.create(MediaType.parse("text/plain"), etGajiMinimum.getText().toString());
-//                RequestBody gajiMaksimum = RequestBody.create(MediaType.parse("text/plain"), etGajiMaksimum.getText().toString());
-//                RequestBody ringkasanPekerjaan = RequestBody.create(MediaType.parse("text/plain"), etRingkasanPekerjaan.getText().toString());
-//                RequestBody kualifikasiPekerjaan = RequestBody.create(MediaType.parse("text/plain"), etKualifikasiPekerjaan.getText().toString());
-//
-//                MultipartBody.Part logoPerusahaan = null;
-//                if (logoFile != null) {
-//                    Toast.makeText(getContext(), "Logo perusahaan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
-//                    RequestBody requestBodyLogo = RequestBody.create(MediaType.parse("image/*"), logoFile);
-//                    logoPerusahaan = MultipartBody.Part.createFormData("logoPerusahaan", logoFile.getName(), requestBodyLogo);
-//                }
-//
-//                Call<CUDlowongan> postLowongan = apiInterface.postLowongan(
-//                        namaPerusahaan,
-//                        pekerjaan,
-//                        lokasi,
-//                        jenisPekerjaan,
-//                        gajiMinimum,
-//                        gajiMaksimum,
-//                        ringkasanPekerjaan,
-//                        kualifikasiPekerjaan,
-//                        logoPerusahaan
-//                );
-//
-//                postLowongan.enqueue(new Callback<CUDlowongan>() {
-//                    @Override
-//                    public void onResponse(Call<CUDlowongan> call, Response<CUDlowongan> response) {
-//                        if (response.isSuccessful()) {
-//                            Toast.makeText(getContext(), "Lowongan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
-//                        } else {
-//                            Toast.makeText(getContext(), "Gagal menambahkan lowongan: " + response.message(), Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<CUDlowongan> call, Throwable t) {
-//                        Toast.makeText(getContext(), "Gagal menambahkan: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            }
-//        });
-
         this.btUnggahLowongan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LowonganFirebase lowongan = new LowonganFirebase();
-                LowonganLogoPerusahaan lowonganRoom = new LowonganLogoPerusahaan();
-                String id = appDB.push().getKey();
-                lowongan.setId(id);
-                lowongan.setNamaPerusahaan(etNamaPerusahaan.getText().toString());
-                lowongan.setPekerjaan(etPekerjaan.getText().toString());
-                lowongan.setLokasi(spLokasi.getSelectedItem().toString());
-                lowongan.setJenisPekerjaan(spJenisPekerjaan.getSelectedItem().toString());
-                lowongan.setGajiMinimum(Integer.parseInt(etGajiMinimum.getText().toString()));
-                lowongan.setGajiMaksimum(Integer.parseInt(etGajiMaksimum.getText().toString()));
-                lowongan.setRingkasanPekerjaan(etRingkasanPekerjaan.getText().toString());
-                lowongan.setKualifikasiPekerjaan(etKualifikasiPekerjaan.getText().toString());
-                lowonganRoom.logoPerusahaan = logoByteArray;
-
-                new Thread(() -> {
-                    logoPerusahaanDAO.insertLogoPerusahaan(lowonganRoom);
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        appDB.child(id).setValue(lowongan);
-                        Toast.makeText(getContext(), "Lowongan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
-                        HomePageFragment homePage = new HomePageFragment();
-                        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                        transaction.replace(R.id.frameLayout, homePage);
-                        transaction.commit();
-
-                        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
-                        bottomNavigationView.setSelectedItemId(R.id.nbHome);
-                    });
-                }).start();
+                uploadToFirebase();
+                uploadToREST();
             }
         });
         return view;
@@ -246,28 +177,28 @@ public class TambahLowonganFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        if (resultCode == getActivity().RESULT_OK) {
-//            if (requestCode == REQUEST_IMAGE_CAPTURE) {
-//                logoFile = new File(currentPhotoPath);
-//            } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
-//                Uri selectedImageUri = data.getData();
-//                try {
-//                    InputStream inputStream = getContext().getContentResolver().openInputStream(selectedImageUri);
-//                    logoFile = new File(getContext().getExternalFilesDir(null), "picked_image.jpg");
-//                    OutputStream outputStream = new FileOutputStream(logoFile);
-//                    byte[] buffer = new byte[1024];
-//                    int length;
-//                    while ((length = inputStream.read(buffer)) != -1) {
-//                        outputStream.write(buffer, 0, length);
-//                    }
-//                    outputStream.flush();
-//                    outputStream.close();
-//                    inputStream.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
+        if (resultCode == getActivity().RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                logoFile = new File(currentPhotoPath);
+            } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
+                Uri selectedImageUri = data.getData();
+                try {
+                    InputStream inputStream = getContext().getContentResolver().openInputStream(selectedImageUri);
+                    logoFile = new File(getContext().getExternalFilesDir(null), "picked_image.jpg");
+                    OutputStream outputStream = new FileOutputStream(logoFile);
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, length);
+                    }
+                    outputStream.flush();
+                    outputStream.close();
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         if (resultCode == getActivity().RESULT_OK) {
             try {
                 if (requestCode == REQUEST_IMAGE_CAPTURE) {
@@ -317,5 +248,84 @@ public class TambahLowonganFragment extends Fragment {
                 Toast.makeText(getContext(), "Storage permission denied", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void uploadToREST(){
+        apiInterface = ApiClient.getClient().create(ApiInterface.class);
+
+        RequestBody namaPerusahaan = RequestBody.create(MediaType.parse("text/plain"), etNamaPerusahaan.getText().toString());
+        RequestBody pekerjaan = RequestBody.create(MediaType.parse("text/plain"), etPekerjaan.getText().toString());
+        RequestBody lokasi = RequestBody.create(MediaType.parse("text/plain"), spLokasi.getSelectedItem().toString());
+        RequestBody jenisPekerjaan = RequestBody.create(MediaType.parse("text/plain"), spJenisPekerjaan.getSelectedItem().toString());
+        RequestBody gajiMinimum = RequestBody.create(MediaType.parse("text/plain"), etGajiMinimum.getText().toString());
+        RequestBody gajiMaksimum = RequestBody.create(MediaType.parse("text/plain"), etGajiMaksimum.getText().toString());
+        RequestBody ringkasanPekerjaan = RequestBody.create(MediaType.parse("text/plain"), etRingkasanPekerjaan.getText().toString());
+        RequestBody kualifikasiPekerjaan = RequestBody.create(MediaType.parse("text/plain"), etKualifikasiPekerjaan.getText().toString());
+
+        MultipartBody.Part logoPerusahaan = null;
+        if (logoFile != null) {
+            Toast.makeText(getContext(), "Logo perusahaan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
+            RequestBody requestBodyLogo = RequestBody.create(MediaType.parse("image/*"), logoFile);
+            logoPerusahaan = MultipartBody.Part.createFormData("logoPerusahaan", logoFile.getName(), requestBodyLogo);
+        }
+
+        Call<CUDlowongan> postLowongan = apiInterface.postLowongan(
+                namaPerusahaan,
+                pekerjaan,
+                lokasi,
+                jenisPekerjaan,
+                gajiMinimum,
+                gajiMaksimum,
+                ringkasanPekerjaan,
+                kualifikasiPekerjaan,
+                logoPerusahaan
+        );
+
+        postLowongan.enqueue(new Callback<CUDlowongan>() {
+            @Override
+            public void onResponse(Call<CUDlowongan> call, Response<CUDlowongan> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Lowongan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Gagal menambahkan lowongan: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CUDlowongan> call, Throwable t) {
+                Toast.makeText(getContext(), "Gagal menambahkan: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void uploadToFirebase(){
+        LowonganFirebase lowongan = new LowonganFirebase();
+        LowonganLogoPerusahaan lowonganRoom = new LowonganLogoPerusahaan();
+        String id = appDB.push().getKey();
+        lowongan.setId(id);
+        lowongan.setNamaPerusahaan(etNamaPerusahaan.getText().toString());
+        lowongan.setPekerjaan(etPekerjaan.getText().toString());
+        lowongan.setLokasi(spLokasi.getSelectedItem().toString());
+        lowongan.setJenisPekerjaan(spJenisPekerjaan.getSelectedItem().toString());
+        lowongan.setGajiMinimum(Integer.parseInt(etGajiMinimum.getText().toString()));
+        lowongan.setGajiMaksimum(Integer.parseInt(etGajiMaksimum.getText().toString()));
+        lowongan.setRingkasanPekerjaan(etRingkasanPekerjaan.getText().toString());
+        lowongan.setKualifikasiPekerjaan(etKualifikasiPekerjaan.getText().toString());
+        lowonganRoom.logoPerusahaan = logoByteArray;
+
+        new Thread(() -> {
+            logoPerusahaanDAO.insertLogoPerusahaan(lowonganRoom);
+            new Handler(Looper.getMainLooper()).post(() -> {
+                appDB.child(id).setValue(lowongan);
+                Toast.makeText(getContext(), "Lowongan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
+                TrackLowonganFragment trackLowongan = new TrackLowonganFragment();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.frameLayout, trackLowongan);
+                transaction.commit();
+
+                BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
+                bottomNavigationView.setSelectedItemId(R.id.nbTrack);
+            });
+        }).start();
     }
 }
